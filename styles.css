@@ -278,11 +278,24 @@ ul, ol { padding: 0; list-style: none; }
   .feat-grid { grid-template-columns: 1fr; }
   .nav-links { display: none; }
   .nav-cta .theme-toggle:not(.theme-fab) { display: none; }
+  /* Il CTA "Scarica la beta" nel nav (largo, con testo) non ha spazio accanto a logo +
+     hamburger su schermi stretti e ci finiva sopra (fix 2026-07, "tutto rotta la navbar" —
+     più volte segnalato: il problema reale non era mai il theme-toggle una volta tolto,
+     era questo bottone). La stessa identica CTA vive già, prominente, nell'hero appena
+     sotto — nasconderla qui non toglie nessuna azione raggiungibile, solo la duplicazione
+     che non ci stava. */
+  .nav-cta .tf-cta { display: none; }
   .nav-toggle { display: inline-flex; }
   .theme-fab {
     display: inline-grid; position: fixed; z-index: 60;
     right: 18px; bottom: calc(18px + env(safe-area-inset-bottom));
     width: 52px; height: 52px; box-shadow: var(--shadow-float);
+    /* Forza un compositing layer proprio (fix 2026-07): senza, Safari iOS a volte "perde"
+       il vero `position: fixed` durante lo scroll quando la barra degli indirizzi si
+       espande/comprime, e il bottone appare fluttuare a metà pagina invece che ancorato
+       in basso a destra. */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
   }
   .nav.menu-open .nav-links {
     display: flex; position: absolute; top: 68px; left: 0; right: 0; flex-direction: column;
