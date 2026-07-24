@@ -25,13 +25,16 @@ document.getElementById('year').textContent = new Date().getFullYear();
 
 // ------------------------------------------------------------- Tema chiaro/scuro
 const root = document.documentElement;
-const themeToggle = document.getElementById('themeToggle');
-themeToggle?.addEventListener('click', () => {
+function toggleTheme() {
   const current = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   const next = current === 'dark' ? 'light' : 'dark';
   root.setAttribute('data-theme', next);
   try { localStorage.setItem('refertrack-theme', next); } catch (e) {}
-});
+}
+// Due bottoni fisicamente distinti (inline nel nav + FAB fluttuante su mobile, fix 2026-07
+// "la navbar è rotta"): stessa funzione, mai visibili insieme (CSS li alterna per breakpoint).
+document.getElementById('themeToggle')?.addEventListener('click', toggleTheme);
+document.getElementById('themeFab')?.addEventListener('click', toggleTheme);
 
 // ------------------------------------------------------------------ Reveal
 const revealEls = document.querySelectorAll('.reveal');
@@ -63,8 +66,17 @@ document.querySelectorAll('.faq-q').forEach((btn) => {
 
 // ----------------------------------------------------------- Menu mobile
 const navToggle = document.getElementById('navToggle');
+const navEl = document.getElementById('nav');
 navToggle?.addEventListener('click', () => {
   const expanded = navToggle.getAttribute('aria-expanded') === 'true';
   navToggle.setAttribute('aria-expanded', String(!expanded));
-  document.querySelector('.nav-links')?.classList.toggle('open');
+  // Era `.nav-links.open`, una classe che il CSS non leggeva da nessuna parte (il menu mobile
+  // non si apriva mai) — il CSS alterna il dropdown su `.nav.menu-open`, non sul link stesso.
+  navEl?.classList.toggle('menu-open');
+});
+document.querySelectorAll('.nav-links a').forEach((a) => {
+  a.addEventListener('click', () => {
+    navEl?.classList.remove('menu-open');
+    navToggle?.setAttribute('aria-expanded', 'false');
+  });
 });

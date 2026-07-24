@@ -120,6 +120,11 @@ ul, ol { padding: 0; list-style: none; }
   :root:not([data-theme]) .ico-sun { display: block; }
 }
 .nav-toggle { display: none; background: none; border: 0; color: var(--text-primary); cursor: pointer; }
+/* FAB: solo mobile (< 860px) — sul nav-cta stretto il toggle in linea si scontrava con il
+   bottone "Scarica la beta" (fix 2026-07, "la navbar è rotta"). Stesso pattern di Quillino:
+   il toggle inline sparisce sotto la soglia e un secondo bottone identico (`.theme-fab`,
+   marcato in HTML fuori dal nav) prende il suo posto come cerchio flottante in basso a destra. */
+.theme-fab { display: none; }
 
 /* --------------------------------------------------------------- Buttons */
 .btn {
@@ -149,26 +154,26 @@ ul, ol { padding: 0; list-style: none; }
 .hero-reassure { margin-top: 16px; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-tertiary); }
 .hero-reassure svg { color: var(--accent-green); flex: none; }
 
-/* `overflow: hidden` + immagine assoluta con `inset` (fix "il contenuto esce dagli iphone"):
-   prima l'immagine era un figlio normale al 100%/100% dentro un `.device` a `content-box` con
-   `aspect-ratio` + `padding` insieme — combinazione fragile, alcuni motori calcolano l'altezza
-   del content-box in modo lievemente diverso e lo screenshot sborda oltre la cornice arrotondata.
-   Con `overflow: hidden` sulla cornice nulla può più uscirne, qualunque sia il calcolo esatto. */
+/* Stesso schema del sito Quillino (frame giudicato meglio riuscito): `box-sizing: content-box`
+   contro il reset globale border-box così `aspect-ratio` descrive l'area DENTRO il padding (dove
+   vive lo screenshot) — padding/bordo si aggiungono fuori, niente calcolo bordo/content-box misto
+   che aveva causato "il contenuto esce dagli iphone" nella versione precedente. Bezel sottile
+   (5px, non 10px): un bordo spesso è stato bocciato più volte su Quillino come "troppo chunky".
+   Bordo fisso rgba(255,255,255,0.22) (non da var tema): resta leggibile anche quando lo
+   screenshot dentro è in dark mode e quasi nero quanto la cornice stessa. */
 .device {
-  position: relative;
-  width: 100%; max-width: 280px;
+  position: relative; box-sizing: content-box;
+  width: 100%; max-width: calc(280px - 10px);
   aspect-ratio: 1206 / 2622;
   background: #0b0a0a;
-  border-radius: 44px;
-  border: 1px solid var(--border-strong);
+  border-radius: 44px; padding: 5px;
+  border: 1px solid rgba(255,255,255,0.22);
   box-shadow: var(--shadow-float);
   margin: 0 auto;
-  overflow: hidden;
 }
 .device img {
-  position: absolute; inset: 10px;
-  width: calc(100% - 20px); height: calc(100% - 20px);
-  object-fit: cover; border-radius: 36px;
+  width: 100%; height: 100%;
+  object-fit: cover; border-radius: 40px;
 }
 .hero-media { display: flex; justify-content: center; }
 
@@ -272,6 +277,18 @@ ul, ol { padding: 0; list-style: none; }
   .steps { grid-template-columns: 1fr; }
   .feat-grid { grid-template-columns: 1fr; }
   .nav-links { display: none; }
+  .nav-cta .theme-toggle:not(.theme-fab) { display: none; }
+  .nav-toggle { display: inline-flex; }
+  .theme-fab {
+    display: inline-grid; position: fixed; z-index: 60;
+    right: 18px; bottom: calc(18px + env(safe-area-inset-bottom));
+    width: 52px; height: 52px; box-shadow: var(--shadow-float);
+  }
+  .nav.menu-open .nav-links {
+    display: flex; position: absolute; top: 68px; left: 0; right: 0; flex-direction: column;
+    gap: 4px; padding: 12px 20px 20px; background: var(--bg-primary); border-bottom: 1px solid var(--border-default);
+  }
+  .nav.menu-open .nav-links a { padding: 10px 0; font-size: 17px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
